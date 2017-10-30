@@ -3,29 +3,37 @@ package com.example.sanakazi.videoapp;
 import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Bundle;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
 
 import java.io.IOException;
 
-public class BasicVideoActivity extends AppCompatActivity implements SurfaceHolder.Callback, MediaPlayer.OnPreparedListener {
+public class VideoControlsActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
-    private static final String TAG = BasicVideoActivity.class.getSimpleName();
+    private static final String TAG = VideoControlsActivity.class.getSimpleName();
     RelativeLayout rlBottomControls;
     private SurfaceView mSurfaceView;
     private MediaPlayer mMediaPlayer;
-    private SurfaceHolder mSurfaceHolder;
+    public static SurfaceHolder mSurfaceHolder;
+    private VideoStream videoStream_object;
+    private ImageView ivPlay;
+    public static boolean isPlaying = true;
 
 
-  //  private static final String VIDEO_PATH="http://classicmusic-9521.kxcdn.com/video/Tu%20hi%20hai%20aashiqui%20orignal%20song%20from%20movie.mp4";
-   private static final String VIDEO_PATH="https://inducesmile.com/wp-content/uploads/2016/05/small.mp4";
+    //  private static final String VIDEO_PATH="http://classicmusic-9521.kxcdn.com/video/Tu%20hi%20hai%20aashiqui%20orignal%20song%20from%20movie.mp4";
+   // private static final String VIDEO_PATH = "https://inducesmile.com/wp-content/uploads/2016/05/small.mp4";
+    private static final String VIDEO_PATH ="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
     private static int bottomPlayerVisibility = 1;
     private static int SPLASH_TIME_OUT = 3000;
 
@@ -38,7 +46,8 @@ public class BasicVideoActivity extends AppCompatActivity implements SurfaceHold
 
         }
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_basic_video);
+        setContentView(R.layout.activity_video_controls);
+        Log.w(TAG,"onCreate() of activity");
         initialize();
         click_events();
 
@@ -47,9 +56,10 @@ public class BasicVideoActivity extends AppCompatActivity implements SurfaceHold
 
     private void initialize() {
         rlBottomControls = (RelativeLayout) findViewById(R.id.rlBottomControls);
-        mSurfaceView = (SurfaceView)findViewById(R.id.surface_view);
+        mSurfaceView = (SurfaceView) findViewById(R.id.surface_view);
+        ivPlay = (ImageView) findViewById(R.id.ivPlay);
         mSurfaceHolder = mSurfaceView.getHolder();
-        mSurfaceHolder.addCallback(BasicVideoActivity.this);
+        mSurfaceHolder.addCallback(VideoControlsActivity.this);
     }
 
 
@@ -59,13 +69,22 @@ public class BasicVideoActivity extends AppCompatActivity implements SurfaceHold
             public void onClick(View v) {
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
-                    if (bottomPlayerVisibility == 1) {
-                        rlBottomControls.setVisibility(View.INVISIBLE);
-                        bottomPlayerVisibility=0;
-                    } else {
-                        rlBottomControls.setVisibility(View.VISIBLE);
-                        bottomPlayerVisibility = 1;
-                    }
+                }
+            }
+        });
+
+        ivPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isPlaying) {
+                    videoStream_object.pause();
+                    ivPlay.setImageResource(R.mipmap.stop_video);
+
+                } else {
+                   // videoStream_object.play(VIDEO_PATH);
+                    ivPlay.setImageResource(R.mipmap.play_video);
+                    videoStream_object.playerResume();
+
                 }
             }
         });
@@ -73,62 +92,55 @@ public class BasicVideoActivity extends AppCompatActivity implements SurfaceHold
     }
 
 
-
-
-    private void hideBottomPlayer() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                rlBottomControls.setVisibility(View.INVISIBLE);
-            }
-        }, SPLASH_TIME_OUT);
-
-        bottomPlayerVisibility = 0;
-    }
-
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setDisplay(mSurfaceHolder);
-        try {
-            mMediaPlayer.setDataSource(VIDEO_PATH);
-            mMediaPlayer.prepareAsync();// important because this line causes the screen to open immediately and then load video on separate thread.
-           // mMediaPlayer.prepare();
-            mMediaPlayer.setOnPreparedListener(BasicVideoActivity.this);
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        } catch (IOException e) {
-            e.printStackTrace();
+        Log.w(TAG, "surface surfaceCreated");
+        if(isPlaying) {
+            videoStream_object = new VideoStream(VideoControlsActivity.this);
+            videoStream_object.play(VIDEO_PATH);
         }
+
     }
+
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
+
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        mMediaPlayer.start();
-    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        releaseMediaPlayer();
+        Log.w(TAG,"onPause() of activity");
+        ivPlay.setImageResource(R.mipmap.stop_video);
+        videoStream_object.pause();
+
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        releaseMediaPlayer();
+        Log.w(TAG,"onDestroy() of activity");
+        videoStream_object.releaseMediaPlayer();
     }
-    private void releaseMediaPlayer() {
-        if (mMediaPlayer != null) {
-            mMediaPlayer.release();
-            mMediaPlayer = null;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.w(TAG,"onResume() of activity"+ ",isPlaying = " + isPlaying);
+        if (isPlaying) {
+            ivPlay.setImageResource(R.mipmap.play_video);
+        } else {
+            ivPlay.setImageResource(R.mipmap.stop_video);
+           // videoStream_object.playerResume();
         }
+
+
     }
 
-
-   /* public void onConfigurationChanged(Configuration newConfig) {
+/* public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
         // Checks the orientation of the screen
@@ -139,3 +151,4 @@ public class BasicVideoActivity extends AppCompatActivity implements SurfaceHold
         }
     }*/
 }
+

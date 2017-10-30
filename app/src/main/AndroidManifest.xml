@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.sanakazi.videoapp">
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -12,8 +13,7 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
             android:name=".BasicVideoActivity"
-            android:configChanges="orientation|keyboardHidden">
-        </activity>
+            android:configChanges="orientation|keyboardHidden"></activity>
         <activity android:name=".SecondActivity" />
         <activity android:name=".LaunchActivity">
             <intent-filter>
@@ -22,6 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".VideoControlsActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"></activity>
     </application>
 
 </manifest>
