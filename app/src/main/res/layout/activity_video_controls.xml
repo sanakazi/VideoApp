@@ -104,6 +104,8 @@
                 android:id="@+id/rlLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/seekBar"
+                android:layout_alignRight="@id/seekBar"
                 android:layout_below="@+id/seekBar">
 
                 <TextView

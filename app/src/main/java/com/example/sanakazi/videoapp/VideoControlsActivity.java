@@ -15,6 +15,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 
 import java.io.IOException;
@@ -29,11 +31,13 @@ public class VideoControlsActivity extends AppCompatActivity implements SurfaceH
     private VideoStream videoStream_object;
     private ImageView ivPlay;
     public static boolean isPlaying = true;
+    public static SeekBar seekBarVideo;
+    public static TextView tvDuration,tvStartTime;
 
 
-    //  private static final String VIDEO_PATH="http://classicmusic-9521.kxcdn.com/video/Tu%20hi%20hai%20aashiqui%20orignal%20song%20from%20movie.mp4";
+     private static final String VIDEO_PATH="http://classicmusic-9521.kxcdn.com/video/Tu%20hi%20hai%20aashiqui%20orignal%20song%20from%20movie.mp4";
    // private static final String VIDEO_PATH = "https://inducesmile.com/wp-content/uploads/2016/05/small.mp4";
-    private static final String VIDEO_PATH ="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
+  //  private static final String VIDEO_PATH ="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
     private static int bottomPlayerVisibility = 1;
     private static int SPLASH_TIME_OUT = 3000;
 
@@ -58,6 +62,11 @@ public class VideoControlsActivity extends AppCompatActivity implements SurfaceH
         rlBottomControls = (RelativeLayout) findViewById(R.id.rlBottomControls);
         mSurfaceView = (SurfaceView) findViewById(R.id.surface_view);
         ivPlay = (ImageView) findViewById(R.id.ivPlay);
+        tvDuration=(TextView)findViewById(R.id.tvDuration);
+        tvStartTime=(TextView)findViewById(R.id.tvStartTime);
+        seekBarVideo=(SeekBar)findViewById(R.id.seekBar) ;
+        tvStartTime.setText("00:00:00");
+        tvDuration.setText("00:00:00");
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(VideoControlsActivity.this);
     }
@@ -94,20 +103,25 @@ public class VideoControlsActivity extends AppCompatActivity implements SurfaceH
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.w(TAG, "surface surfaceCreated");
+        Log.w(TAG, "surface surfaceCreated" + ", isPlaying = "+ isPlaying);
+
         if(isPlaying) {
             videoStream_object = new VideoStream(VideoControlsActivity.this);
             videoStream_object.play(VIDEO_PATH);
         }
+        videoStream_object.setSeekBar((SeekBar)findViewById(R.id.seekBar));
 
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        Log.w(TAG, "surface surfaceChanged");
+
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.w(TAG, "surface surfaceChanged");
     }
 
     @Override
